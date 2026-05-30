@@ -1,5 +1,6 @@
 const fs = require('fs');
 const http = require('http');
+const url = require('url');
 
 const replaceTemplateVariables = (template, product) => {
   const notOrganicClassName = !product.organic ? 'not-organic' : '';
@@ -11,6 +12,7 @@ const replaceTemplateVariables = (template, product) => {
   output = output.replace(/{%QUANTITY%}/g, product.quantity);
   output = output.replace(/{%PRICE%}/g, product.price);
   output = output.replace(/{%DESCRIPTION%}/g, product.description);
+  output = output.replace(/{%ID%}/g, product.id);
   output = output.replace(/{%NOT_ORGANIC%}/g, notOrganicClassName);
 
   return output;
@@ -24,9 +26,9 @@ const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8');
 const dataObj = JSON.parse(data);
 
 const server = http.createServer((req, res) => {
-  const route = req.url;
+  const { pathname, query } = url.parse(req.url, true);
 
-  if (route === '/' || route === '/overview') {
+  if (pathname === '/' || pathname === '/overview') {
     const cardsHtml = dataObj.map(el => replaceTemplateVariables(cardTemplate, el)).join('');
     const output = overviewTemplate.replace(/{%PRODUCT_CARDS%}/g, cardsHtml);
 
@@ -34,9 +36,21 @@ const server = http.createServer((req, res) => {
       'Content-type': 'text/html',
     });
     res.end(output);
-  } else if (route === '/product') {
-    res.end('This is Product page');
-  } else if (route === '/api') {
+  } else if (pathname === '/product') {
+    const product = dataObj.find(el => el.id === Number(query.id));
+    let output = '';
+
+    if (product) {
+      output = replaceTemplateVariables(productTemplate, product);
+    } else {
+      output = '<h1>Product not found</h1>';
+    }
+
+    res.writeHead(200, {
+      'Content-type': 'text/html',
+    });
+    res.end(output);
+  } else if (pathname === '/api') {
     res.writeHead(200, {
       'Content-type': 'application/json',
     });
