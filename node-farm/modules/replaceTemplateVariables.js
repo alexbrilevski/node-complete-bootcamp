@@ -8,7 +8,7 @@ module.exports = (template, product) => {
     output = output.replace(/{%QUANTITY%}/g, product.quantity);
     output = output.replace(/{%PRICE%}/g, product.price);
     output = output.replace(/{%DESCRIPTION%}/g, product.description);
-    output = output.replace(/{%ID%}/g, product.id);
+    output = output.replace(/{%SLUG%}/g, product.slug);
     output = output.replace(/{%NOT_ORGANIC%}/g, notOrganicClassName);
 
     return output;
