@@ -1,30 +1,70 @@
 const fs = require('fs');
+const http = require('http');
+const url = require('url');
+const slugify = require('slugify');
+const replaceTemplateVariables = require('./modules/replaceTemplateVariables');
 
-// Blocking, synchronous way
-const textInput = fs.readFileSync('./txt/input.txt', 'utf-8');
-console.log(textInput);
+const cardTemplate = fs.readFileSync(
+  `${__dirname}/templates/template-card.html`,
+  'utf-8',
+);
+const productTemplate = fs.readFileSync(
+  `${__dirname}/templates/template-product.html`,
+  'utf-8',
+);
+const overviewTemplate = fs.readFileSync(
+  `${__dirname}/templates/template-overview.html`,
+  'utf-8',
+);
 
-const textOutput = `This is what we know about avocado: ${textInput}.\nCreated on ${new Date().toLocaleDateString()}`;
-fs.writeFileSync('./txt/output.txt', textOutput);
-console.log('Text output file written.');
+const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8');
+const dataObj = JSON.parse(data);
+const productData = dataObj.map((el) => ({
+  ...el,
+  slug: slugify(el.productName, { lower: true }),
+}));
 
-// Non-blocking, asynchronous way
-fs.readFile('./txt/start.txt', 'utf-8', (error, fileName) => {
-  if (error) {
-    console.log('Error! An error occured when reading file.');
-    return;
-  }
+const server = http.createServer((req, res) => {
+  const { pathname, query } = url.parse(req.url, true);
+  const pathSegments = pathname.split('/').filter((el) => el !== '');
 
-  fs.readFile(`./txt/${fileName}.txt`, 'utf-8', (error, text) => {
-    console.log(text);
+  if (pathname === '/' || pathname === '/overview') {
+    const cardsHtml = productData
+      .map((el) => replaceTemplateVariables(cardTemplate, el))
+      .join('');
+    const output = overviewTemplate.replace(/{%PRODUCT_CARDS%}/g, cardsHtml);
 
-    fs.readFile('./txt/append.txt', 'utf-8', (error, append) => {
-      console.log(append);
-
-      fs.writeFile('./txt/final.txt', `${text}\n${append}`, error => {
-        console.log('The final file has been written successfully.');
-      });
+    res.writeHead(200, {
+      'Content-type': 'text/html',
     });
-  });
+    res.end(output);
+  } else if (pathSegments[0] === 'product' && pathSegments[1]) {
+    const product = productData.find((el) => el.slug === pathSegments[1]);
+    let output = '';
+
+    if (product) {
+      output = replaceTemplateVariables(productTemplate, product);
+    } else {
+      output = '<h1>Product not found</h1>';
+    }
+
+    res.writeHead(200, {
+      'Content-type': 'text/html',
+    });
+    res.end(output);
+  } else if (pathname === '/api') {
+    res.writeHead(200, {
+      'Content-type': 'application/json',
+    });
+    res.end(data);
+  } else {
+    res.writeHead(404, {
+      'Content-type': 'text/html',
+    });
+    res.end('<h1>Page not found</h1>');
+  }
 });
-console.log('Will read file asynchronously');
+
+server.listen(8000, 'localhost', () => {
+  console.log('Listening of requests on localhost, port 8000');
+});
