@@ -11,12 +11,7 @@ fs.readFile(`${__dirname}/dog.txt`, (error, data) => {
 
   superagent
     .get(`https://dog.ceo/api/breed/${data}/images/random`)
-    .end((error, response) => {
-      if (error) {
-        console.log(error.message);
-        return;
-      }
-
+    .then(response => {
       console.log(response.body);
 
       fs.writeFile('dog-img.txt', response.body.message, error => {
@@ -27,5 +22,8 @@ fs.readFile(`${__dirname}/dog.txt`, (error, data) => {
 
         console.log('random dog image saved to file');
       });
+    })
+    .catch(error => {
+      console.log(error.message);
     });
 });
