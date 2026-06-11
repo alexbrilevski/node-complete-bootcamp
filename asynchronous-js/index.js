@@ -1,29 +1,38 @@
 const fs = require('fs');
 const superagent = require('superagent');
 
-fs.readFile(`${__dirname}/dog.txt`, (error, data) => {
-  if (error) {
-    console.log(error.message);
-    return;
-  }
-
-  console.log(`Dog breed: ${data}`);
-
-  superagent
-    .get(`https://dog.ceo/api/breed/${data}/images/random`)
-    .then(response => {
-      console.log(response.body);
-
-      fs.writeFile('dog-img.txt', response.body.message, error => {
-        if (error) {
-          console.log(error.message);
-          return;
-        }
-
-        console.log('random dog image saved to file');
-      });
-    })
-    .catch(error => {
-      console.log(error.message);
+const readFilePromise = file => {
+  return new Promise((resolve, reject) => {
+    fs.readFile(file, (error, data) => {
+      if (error) reject(error);
+      resolve(data);
     });
-});
+  });
+};
+
+const writeFilePromise = (file, data) => {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(file, data, error => {
+      if (error) reject(error.message);
+      resolve('Random dog image saved to file');
+    });
+  });
+};
+
+readFilePromise(`${__dirname}/dog.txt`)
+  .then(data => {
+    console.log(`Dog breed: ${data}`);
+
+    return superagent.get(`https://dog.ceo/api/breed/${data}/images/random`);
+  })
+  .then(response => {
+    console.log(response.body);
+
+    return writeFilePromise('dog-img.txt', response.body.message);
+  })
+  .then(data => {
+    console.log(data);
+  })
+  .catch(error => {
+    console.log(error.message);
+  });
