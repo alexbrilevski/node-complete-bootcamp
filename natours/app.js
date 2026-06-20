@@ -1,7 +1,11 @@
 const fs = require('fs');
 const express = require('express');
+const morgan = require('morgan');
 
 const app = express();
+
+// Middlewares
+app.use(morgan('dev'));
 
 // Use middleware to add body property to the request object
 app.use(express.json());
@@ -18,6 +22,7 @@ app.use((req, res, next) => {
 
 let tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`));
 
+// Route handlers
 const getAllTours = (req, res) => {
   console.log(req.requestTime);
   res.status(200).json({
@@ -109,6 +114,7 @@ const deleteTour = (req, res) => {
   });
 };
 
+// Routes
 app.route('/api/v1/tours')
   .get(getAllTours)
   .post(createTour);
@@ -118,6 +124,7 @@ app.route('/api/v1/tours/:id')
   .patch(updateTour)
   .delete(deleteTour);
 
+// Start server
 const port = 3000;
 app.listen(port, () => {
   console.log(`App is running on local host, port ${port}`);
