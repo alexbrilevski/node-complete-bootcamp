@@ -1,6 +1,7 @@
 const fs = require('fs');
 
-let tours = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`));
+const toursDataFilePath = `${__dirname}/../dev-data/data/tours-simple.json`;
+let tours = JSON.parse(fs.readFileSync(toursDataFilePath));
 
 exports.checkId = (req, res, next, val) => {
   console.log(`Tour id is: ${val}`);
@@ -45,7 +46,14 @@ exports.createTour = (req, res) => {
 
   tours.push(newTour);
 
-  fs.writeFile(`${__dirname}/dev-data/data/tours-simple.json`, JSON.stringify(tours), error => {
+  fs.writeFile(toursDataFilePath, JSON.stringify(tours), error => {
+    if (error) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'Failed to write data to file.',
+      });
+    }
+
     res.status(201).json({
       status: 'success',
       data: {
@@ -62,7 +70,14 @@ exports.updateTour = (req, res) => {
   tour = { ...tour, ...req.body };
   tours = tours.map(el => el.id === id ? tour : el);
 
-  fs.writeFile(`${__dirname}/dev-data/data/tours-simple.json`, JSON.stringify(tours), error => {
+  fs.writeFile(toursDataFilePath, JSON.stringify(tours), error => {
+    if (error) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'Failed to write data to file.',
+      });
+    }
+
     res.status(200).json({
       status: 'success',
       data: {
@@ -77,7 +92,14 @@ exports.deleteTour = (req, res) => {
 
   tours = tours.filter(el => el.id !== id);
 
-  fs.writeFile(`${__dirname}/dev-data/data/tours-simple.json`, JSON.stringify(tours), error => {
+  fs.writeFile(toursDataFilePath, JSON.stringify(tours), error => {
+    if (error) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'Failed to write data to file.',
+      });
+    }
+
     res.status(204).json({
       status: 'success',
       data: null,
