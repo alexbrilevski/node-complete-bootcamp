@@ -6,7 +6,9 @@ const userRouter = require('./routes/userRoutes');
 const app = express();
 
 // Middlewares
-app.use(morgan('dev'));
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
 // Use middleware to add body property to the request object
 app.use(express.json());
