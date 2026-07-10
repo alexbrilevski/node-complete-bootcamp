@@ -23,6 +23,7 @@ exports.getAllTours = async (req, res) => {
 
 exports.getTour = async (req, res) => {
   try {
+    // Tour.findOne({ _id: req.params.id });
     const tour = await Tour.findById(req.params.id);
 
     res.status(200).json({
@@ -42,6 +43,8 @@ exports.getTour = async (req, res) => {
 
 exports.createTour = async (req, res) => {
   try {
+    // const newTour = new Tour({});
+    // newTour.save();
     const newTour = await Tour.create(req.body);
 
     res.status(201).json({
