@@ -84,22 +84,19 @@ exports.updateTour = async (req, res) => {
   }
 };
 
-exports.deleteTour = (req, res) => {
-  const id = +req.params.id;
+exports.deleteTour = async (req, res) => {
+  try {
+    await Tour.findByIdAndDelete(req.params.id);
 
-  // tours = tours.filter(el => el.id !== id);
-
-  // fs.writeFile(toursDataFilePath, JSON.stringify(tours), error => {
-  //   if (error) {
-  //     return res.status(404).json({
-  //       status: 'fail',
-  //       message: 'Failed to write data to file.',
-  //     });
-  //   }
-
-  //   res.status(204).json({
-  //     status: 'success',
-  //     data: null,
-  //   });
-  // });
+    res.status(204).json({
+      status: 'success',
+      data: null,
+    });
+  }
+  catch (error) {
+    res.status(404).json({
+      status: 'fail',
+      message: 'Failed to write data to file.',
+    });
+  }
 };
