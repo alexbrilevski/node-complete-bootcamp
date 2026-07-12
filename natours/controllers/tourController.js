@@ -1,17 +1,26 @@
+const { get } = require('mongoose');
 const Tour = require('./../models/tourModel');
 
 exports.getAllTours = async (req, res) => {
   try {
     // Build query
+    // 1) Filtering
     const queryObj = { ...req.query };
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
     excludedFields.forEach(el => delete queryObj[el]);
-    const query = Tour.find(queryObj);
+
+    // 2) Advanced filtering
+    // { difficulty: 'easy', duration: { $gte: 5 } };
+    // gte, gt, lte, lt -> $gte, $gt, $lte, $lt
+    let queryStr = JSON.stringify(queryObj);
+    queryStr = queryStr.replace(/\bgte|gt|lte|lt\b/g, match => `$${match}`)
+
     // const query = Tour.find()
     //   .where('duration')
     //   .equals(5)
     //   .where('difficulty')
     //   .equals('easy');
+    const query = Tour.find(JSON.parse(queryStr));
 
     // Execute query
     const tours = await query;
