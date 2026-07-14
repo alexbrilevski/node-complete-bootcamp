@@ -1,5 +1,6 @@
 const { get } = require('mongoose');
 const Tour = require('./../models/tourModel');
+const APIFeatures = require('./../utils/apiFeatures');
 
 exports.aliasTopTours = (req, res, next) => {
   req.query.limit = '5';
@@ -11,55 +12,11 @@ exports.aliasTopTours = (req, res, next) => {
 exports.getAllTours = async (req, res) => {
   try {
     // Build query
-    // 1) Filtering
-    const queryObj = { ...req.query };
-    const excludedFields = ['page', 'sort', 'limit', 'fields'];
-    excludedFields.forEach(el => delete queryObj[el]);
-
-    // 2) Advanced filtering
-    // { difficulty: 'easy', duration: { $gte: 5 } };
-    // gte, gt, lte, lt -> $gte, $gt, $lte, $lt
-    let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(/\bgte|gt|lte|lt\b/g, match => `$${match}`)
-
-    // Mongoose Query object
-    // const query = Tour.find()
-    //   .where('duration')
-    //   .equals(5)
-    //   .where('difficulty')
-    //   .equals('easy');
-    let query = Tour.find(JSON.parse(queryStr));
-
-    // 3) Sorting
-    if (req.query.sort) {
-      const sortBy = req.query.sort.split(',').join(' ');
-      query = query.sort(sortBy);
-    } else {
-      query = query.sort('-createdAt');
-    }
-
-    // 4) Limiting fields (projecting)
-    if (req.query.fields) {
-      const fields = req.query.fields.split(',').join(' ');
-      query = query.select(fields);
-    } else {
-      query = query.select('-__v');
-    }
-
-    // 5) Pagination
-    const page = +req.query.page || 1;
-    const limit = +req.query.limit || 100;
-    const skip = (page - 1) * limit;
-
-    query = query.skip(skip).limit(limit);
-
-    if (req.query.page) {
-      const totalCount = await Tour.countDocuments();
-
-      if (skip >= totalCount) {
-        throw new Error('This page does not exist');
-      }
-    }
+    const { query } = new APIFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
 
     // Execute query
     const tours = await query;
