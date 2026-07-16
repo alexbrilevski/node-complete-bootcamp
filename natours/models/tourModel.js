@@ -23,7 +23,7 @@ const tourSchema = new mongoose.Schema({
     type: String,
     required: [true, 'A tour must have a difficulty'],
     enum: {
-      values: ['easy, medium, difficult'],
+      values: ['easy', 'medium', 'difficult'],
       message: 'Difficulty is either: easy, medium or difficult',
     }
   },
@@ -41,7 +41,16 @@ const tourSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'A tour must have a price'],
   },
-  priceDiscount: Number,
+  priceDiscount: {
+    type: Number,
+    validate: {
+      validator: function(fieldVal) {
+        // this only points to the current doc on new document creation
+        return fieldVal < this.price;
+      },
+      message: 'Discount price ({VALUE}) must be below regular price',
+    },
+  },
   summary: {
     type: String,
     required: [true, 'A tour must have a summary'],
