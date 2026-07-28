@@ -26,15 +26,16 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Please confirm your password'],
     validate: {
       // This only works on Create and Save
-      validator: function(fieldVal) {
+      validator: function (fieldVal) {
         return fieldVal === this.password;
       },
       message: 'Passwords are not the same',
     },
   },
+  passwordChangedAt: Date,
 });
 
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function (next) {
   // Only run this function if password was actually modified
   if (!this.isModified('password')) return next();
 
@@ -47,8 +48,18 @@ userSchema.pre('save', async function(next) {
   next();
 });
 
-userSchema.methods.isPasswordCorrect = async (candidatePassword, userPassword) => {
+userSchema.methods.isPasswordCorrect = async function (candidatePassword, userPassword) {
   return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+userSchema.methods.passwordChangedAfter = function (JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    const changedTimestamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
+
+    return JWTTimestamp < changedTimestamp;
+  }
+
+  return false;
 };
 
 const User = mongoose.model('User', userSchema);
