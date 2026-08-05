@@ -12,6 +12,18 @@ const signToken = (id) => {
   });
 };
 
+const createAndSendToken = (user, statusCode, res) => {
+  const token = signToken(user._id);
+
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+    data: {
+      user,
+    }
+  });
+};
+
 exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     name: req.body.name,
@@ -19,16 +31,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
   });
-
-  const token = signToken(newUser._id);
-
-  res.status(201).json({
-    status: 'success',
-    token,
-    data: {
-      user: newUser,
-    }
-  });
+  createAndSendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -45,11 +48,7 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   // 3) If everything is ok, then send token to client
-  const token = signToken(user.id);
-  res.status(200).json({
-    status: 'success',
-    token,
-  });
+  createAndSendToken(user, 200, res);
 });
 
 exports.protectRoute = catchAsync(async (req, res, next) => {
@@ -150,11 +149,26 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   await user.save();
 
   // 3) Update passwordChangedAt property for the user
-  // 4) Log the user in, send JWT
-  const token = signToken(user._id);
+  // Implemented via query middleware in the user model
 
-  res.status(201).json({
-    status: 'success',
-    token,
-  });
+  // 4) Log the user in, send JWT
+  createAndSendToken(user, 200, res);
+});
+
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  // 1) Get user from collection
+  const user = await User.findById({ _id: req.user._id }).select('+password');
+
+  // 2) Check if posted current password is correct
+  if (!user || !(await user.isPasswordCorrect(req.body.passwordCurrent, user.password))) {
+    return next(new AppError('Your current password is not correct.', 401));
+  }
+
+  // 3) If so, update the password
+  user.password = req.body.passwordNew;
+  user.passwordConfirm = req.body.passwordNewConfirm;
+  await user.save();
+
+  // 4) Log the user in, send JWT
+  createAndSendToken(user, 200, res);
 });
