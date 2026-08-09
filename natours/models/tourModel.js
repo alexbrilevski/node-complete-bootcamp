@@ -121,6 +121,7 @@ tourSchema.pre('save', function (next) {
   next();
 });
 
+// Tour guides data embedding example
 // tourSchema.pre('save', async function (next) {
 //   const guidesPeromises = this.guides.map(async id => await User.findById(id));
 //   this.guides = await Promise.all(guidesPeromises);
@@ -141,6 +142,14 @@ tourSchema.pre('save', function (next) {
 tourSchema.pre(/^find/, function (next) {
   this.find({ secretTour: { $ne: true } });
   this.start = Date.now();
+  next();
+});
+
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v, -passwordChangedAt',
+  });
   next();
 });
 
