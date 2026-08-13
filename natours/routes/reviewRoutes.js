@@ -9,6 +9,7 @@ router.route('/')
   .post(
     authController.protectRoute,
     authController.restrictTo('user'),
+    reviewController.setTourAndUserIds,
     reviewController.createReview
   );
 
