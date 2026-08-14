@@ -1,5 +1,32 @@
+const APIFeatures = require('./../utils/apiFeatures');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('../utils/appError');
+
+exports.getAll = Model => catchAsync(async (req, res, next) => {
+  // To allows nested routes on tours
+  const filter = {};
+  if (req.params.tourId) filter.tour = req.params.tourId;
+
+  // Build query
+  const { query } = new APIFeatures(Model.find(filter), req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+
+  // Execute query
+  const docs = await query;
+
+  // Send sesponse
+  res.status(200).json({
+    status: 'success',
+    requestedAt: req.requestTime,
+    results: docs.length,
+    data: {
+      data: docs,
+    },
+  });
+});
 
 exports.getOne = (Model, populateOptions) => catchAsync(async (req, res, next) => {
   // Model.findOne({ _id: req.params.id });
