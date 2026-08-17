@@ -48,11 +48,17 @@ reviewSchema.statics.calcAverageRatings = async function (tourId) {
     },
   ]);
 
-  console.log(stats);
+  let ratingsAverage = 4.5;
+  let ratingsQuantity = 0;
+
+  if (stats.length > 0) {
+    ratingsAverage = stats[0].avgRating;
+    ratingsQuantity = stats[0].nRating;
+  }
 
   await Tour.findByIdAndUpdate(tourId, {
-    ratingsAverage: stats[0].avgRating,
-    ratingsQuantity: stats[0].nRating,
+    ratingsAverage,
+    ratingsQuantity,
   });
 }
 
@@ -69,6 +75,16 @@ reviewSchema.pre(/^find/, function (next) {
       select: 'name photo',
     });
   next();
+});
+
+reviewSchema.pre(/^findOneAnd/, async function (next) {
+  this.reviewDoc = await this.findOne();
+
+  next();
+});
+
+reviewSchema.post(/^findOneAnd/, async function () {
+  await this.reviewDoc.constructor.calcAverageRatings(this.reviewDoc.tour);
 });
 
 const Review = mongoose.model('Review', reviewSchema);
