@@ -1,1 +1,15 @@
-h1 Home page
+doctype html
+html
+  head
+    title Natours | ${tour}
+    link(rel='stylesheet' href='css/style.css')
+    link(rel='shortcut icon' type='image/png' href='img/favicon.png')
+
+  body
+    h1= tour
+    // h1 Home page
+    h2= user.toUpperCase()
+
+    - const x = 8;
+    h2= x * 2
+    p Just some text
