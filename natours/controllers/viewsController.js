@@ -19,9 +19,12 @@ exports.getTour = catchAsync(async (req, res, next) => {
     fields: 'review rating user',
   });
 
+  const mapboxAccessToken = process.env.MAPBOX_ACCESS_TOKEN;
+
   // 2) Render template using tour data
   res.status(200).render('tour', {
-    title: tour.name,
+    title: `${tour.name} Tour`,
+    mapboxAccessToken,
     tour,
   });
 });
