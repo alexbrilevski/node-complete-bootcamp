@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cookieParser = require('cookie-parser');
 
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
@@ -27,12 +28,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      scriptSrc: ["'self'", "https://api.mapbox.com"],
+      scriptSrc: ["'self'", "https://api.mapbox.com", "https://cdn.jsdelivr.net"],
       workerSrc: ["'self'", "blob:"],
       childSrc: ["'self'", "blob:"],
       imgSrc: ["'self'", "data:", "blob:", "https://api.mapbox.com"],
       connectSrc: [
         "'self'",
+        "https://cdn.jsdelivr.net",
         "https://api.mapbox.com",
         "https://*.tiles.mapbox.com",
         "https://events.mapbox.com"
@@ -56,6 +58,7 @@ app.use('/api', limiter);
 
 // Body parser, reading data from request body into req.body
 app.use(express.json({ limit: '10kb' }));
+app.use(cookieParser());
 
 // Data sanitization against noSQL query injection
 app.use(mongoSanitize());

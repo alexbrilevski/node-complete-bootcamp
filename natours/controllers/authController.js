@@ -67,10 +67,12 @@ exports.protectRoute = catchAsync(async (req, res, next) => {
   // 1) Get token and check if it exists
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
+  }
 
-    if (!token) {
-      return next(new AppError('You are not logged in. Please login to get access', 401));
-    }
+  if (!token) {
+    return next(new AppError('You are not logged in. Please login to get access', 401));
   }
 
   // 2) Token verification
