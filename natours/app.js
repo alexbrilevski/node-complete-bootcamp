@@ -34,6 +34,7 @@ app.use(helmet({
       imgSrc: ["'self'", "data:", "blob:", "https://api.mapbox.com"],
       connectSrc: [
         "'self'",
+        "ws://localhost:62202/",
         "https://cdn.jsdelivr.net",
         "https://api.mapbox.com",
         "https://*.tiles.mapbox.com",
