@@ -945,6 +945,9 @@ body {
   text-shadow: none;
   border-color: #f7f7f7;
 }
+.nav__el--logout {
+  line-height: 1.6;
+}
 .nav__search {
   display: -webkit-box;
   display: -ms-flexbox;
