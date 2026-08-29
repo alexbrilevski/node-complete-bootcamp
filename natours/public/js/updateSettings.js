@@ -1,19 +1,18 @@
 import axios from 'axios';
 import { showAlert } from './alert';
 
-export const updateUserData = async (name, email) => {
+// type is either password or data
+export const updateSettings = async (data, type) => {
+  const route = type === 'password' ? 'update-my-password' : 'update-me';
   try {
     const response = await axios({
       method: 'PATCH',
-      url: 'http://localhost:3000/api/v1/users/update-me',
-      data: {
-        name,
-        email,
-      }
+      url: `http://localhost:3000/api/v1/users/${route}`,
+      data,
     });
 
     if (response.data.status === 'success') {
-      showAlert('success', 'User data updated successfully.');
+      showAlert('success', `Your ${type} updated successfully.`);
       setTimeout(() => {
         location.reload(true);
       }, 500);
