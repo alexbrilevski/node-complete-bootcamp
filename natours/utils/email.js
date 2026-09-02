@@ -19,8 +19,9 @@ module.exports = class Email {
     return nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
       port: process.env.EMAIL_PORT,
+      secure: false,
       auth: {
-        email: process.env.EMAIL_USERNAME,
+        user: process.env.EMAIL_USERNAME,
         pass: process.env.EMAIL_PASSWORD,
       },
     });
@@ -30,7 +31,7 @@ module.exports = class Email {
   async send(template, subject) {
     // 1) Render HTML based on a pug template
     const html = pug.renderFile(
-      `${__dirname}/../views/emails/${template}.pug`,
+      `${__dirname}/../views/email/${template}.pug`,
       {
         firstName: this.firstName,
         url: this.url,
@@ -44,11 +45,21 @@ module.exports = class Email {
       to: this.to,
       subject,
       html,
-      text: htmlToText.fromString(html),
+      text: htmlToText.convert(html),
     };
 
     // 3) Create a transporter and send the email
-    await this.newTransport().sendMail(mailOptions);
+    await this.newTransport().sendMail(
+      mailOptions,
+      (err, info) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        console.log(info.envelope);
+        console.log(info.messageId);
+      }
+    );
   }
 
   async sendWelcome() {
