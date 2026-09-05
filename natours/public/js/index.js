@@ -41,10 +41,13 @@ if (userDataForm) {
 if (userPaswordForm) {
   userPaswordForm.addEventListener('submit', async e => {
     e.preventDefault();
+    const savePasswordButton = document.querySelector('.form-user-password .btn--green');
     const passwordCurrent = document.getElementById('password-current').value;
     const passwordNew = document.getElementById('password').value;
     const passwordNewConfirm = document.getElementById('password-confirm').value;
+    savePasswordButton.textContent = "Updating...";
     await updateSettings({ passwordCurrent, passwordNew, passwordNewConfirm }, 'password');
+    savePasswordButton.textContent = "Save password";
 
     document.getElementById('password-current').value = '';
     document.getElementById('password').value = '';
