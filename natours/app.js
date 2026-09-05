@@ -29,9 +29,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      scriptSrc: ["'self'", "https://api.mapbox.com", "https://cdn.jsdelivr.net"],
+      scriptSrc: [
+        "'self'",
+        "https://js.stripe.com",
+        "https://api.mapbox.com",
+        "https://cdn.jsdelivr.net"
+      ],
       workerSrc: ["'self'", "blob:"],
-      childSrc: ["'self'", "blob:"],
+      childSrc: ["'self'", "blob:", "https://js.stripe.com"],
       imgSrc: ["'self'", "data:", "blob:", "https://api.mapbox.com"],
       connectSrc: [
         "'self'",
