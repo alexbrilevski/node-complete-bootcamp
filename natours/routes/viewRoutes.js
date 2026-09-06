@@ -6,6 +6,7 @@ const bookingController = require('./../controllers/bookingController');
 const router = express.Router();
 
 router.get('/me', authController.protectRoute, viewsController.getAccount);
+router.get('/my-bookings', authController.protectRoute, viewsController.getMyBookings);
 router.post('/submit-user-data', authController.protectRoute, viewsController.updateUserData);
 
 router.use(authController.isLogged);
