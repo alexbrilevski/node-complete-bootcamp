@@ -2,6 +2,7 @@ import '@babel/polyfill';
 import { displayMap } from './mapbox';
 import { login, logout } from './login';
 import { updateSettings } from './updateSettings';
+import { bookTour } from './stripe';
 
 // DOM elements
 const mapEl = document.getElementById('map');
@@ -9,6 +10,7 @@ const loginForm = document.querySelector('.login-form .form');
 const userDataForm = document.querySelector('.form-user-data');
 const userPaswordForm = document.querySelector('.form-user-password');
 const logoutBtn = document.querySelector('.nav__el--logout');
+const bookTourBtn = document.getElementById('book-tour');
 
 // Delegation
 if (mapEl) {
@@ -41,10 +43,13 @@ if (userDataForm) {
 if (userPaswordForm) {
   userPaswordForm.addEventListener('submit', async e => {
     e.preventDefault();
+    const savePasswordButton = document.querySelector('.form-user-password .btn--green');
     const passwordCurrent = document.getElementById('password-current').value;
     const passwordNew = document.getElementById('password').value;
     const passwordNewConfirm = document.getElementById('password-confirm').value;
+    savePasswordButton.textContent = "Updating...";
     await updateSettings({ passwordCurrent, passwordNew, passwordNewConfirm }, 'password');
+    savePasswordButton.textContent = "Save password";
 
     document.getElementById('password-current').value = '';
     document.getElementById('password').value = '';
@@ -54,4 +59,12 @@ if (userPaswordForm) {
 
 if (logoutBtn) {
   logoutBtn.addEventListener('click', logout);
+}
+
+if (bookTourBtn) {
+  bookTourBtn.addEventListener('click', e => {
+    e.target.textContent = 'Processing...';
+    const {tourId} = e.target.dataset;
+    bookTour(tourId);
+  });
 }

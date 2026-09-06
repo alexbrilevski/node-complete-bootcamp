@@ -11,6 +11,7 @@ const cookieParser = require('cookie-parser');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
+const bookingRouter = require('./routes/bookingRoutes');
 const viewRouter = require('./routes/viewRoutes');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -28,9 +29,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      scriptSrc: ["'self'", "https://api.mapbox.com", "https://cdn.jsdelivr.net"],
+      scriptSrc: [
+        "'self'",
+        "https://js.stripe.com",
+        "https://api.mapbox.com",
+        "https://cdn.jsdelivr.net"
+      ],
       workerSrc: ["'self'", "blob:"],
-      childSrc: ["'self'", "blob:"],
+      childSrc: ["'self'", "blob:", "https://js.stripe.com"],
       imgSrc: ["'self'", "data:", "blob:", "https://api.mapbox.com"],
       connectSrc: [
         "'self'",
@@ -95,6 +101,7 @@ app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/bookings', bookingRouter);
 
 // Undefined routes handler for all request types
 app.all('*', (req, res, next) => {
