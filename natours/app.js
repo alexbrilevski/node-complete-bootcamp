@@ -92,10 +92,6 @@ app.use(compression());
 
 // Test middleware
 app.use((req, res, next) => {
-  console.log('Middleware 1 executed');
-  next();
-});
-app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   next();
 });
