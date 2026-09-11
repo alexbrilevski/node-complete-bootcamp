@@ -6,12 +6,17 @@ const bookingController = require('./../controllers/bookingController');
 const router = express.Router();
 
 router.get('/me', authController.protectRoute, viewsController.getAccount);
-router.get('/my-bookings', authController.protectRoute, viewsController.getMyBookings);
+router.get(
+  '/my-bookings',
+  // bookingController.createBookingCheckout, 
+  authController.protectRoute,
+  viewsController.getMyBookings
+);
 router.post('/submit-user-data', authController.protectRoute, viewsController.updateUserData);
 
 router.use(authController.isLogged);
 
-router.get('/', bookingController.createBookingCheckout, viewsController.getOverview);
+router.get('/', viewsController.getOverview);
 
 router.get('/tour/:slug', viewsController.getTour);
 
