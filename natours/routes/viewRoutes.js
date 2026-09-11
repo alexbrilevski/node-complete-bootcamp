@@ -10,7 +10,7 @@ router.use(viewsController.alerts);
 router.get('/me', authController.protectRoute, viewsController.getAccount);
 router.get(
   '/my-bookings',
-  // bookingController.createBookingCheckout, 
+  bookingController.createBookingCheckout, 
   authController.protectRoute,
   viewsController.getMyBookings
 );
